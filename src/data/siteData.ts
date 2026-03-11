@@ -121,7 +121,7 @@ export const siteData = {
                 { image: "/img/projects/prime-bank4.jpg", alt: "Office interior view" },
                 { image: "/img/projects/prime-bank5.jpg", alt: "Office interior view" },
                 { image: "/img/projects/prime-bank6.jpg", alt: "Office interior view" },
-                { image: "/img/projects/prime-bank7.jpg", alt: "Office interior view", full: true },
+                { image: "/img/projects/prime-bank7.jpg", alt: "Office interior view" },
             ],
             relatedIds: ["fatima-garden", "ansar-housing"]
         },

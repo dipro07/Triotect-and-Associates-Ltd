@@ -12,22 +12,31 @@ const ProjectDetailPage = () => {
     const params = useParams();
     const slug = params.slug;
 
-    const [lightboxImage, setLightboxImage] = useState<string | null>(null);
-
-    // Close lightbox on Escape key
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === "Escape") setLightboxImage(null);
-        };
-        window.addEventListener("keydown", handleKeyDown);
-        return () => window.removeEventListener("keydown", handleKeyDown);
-    }, []);
+    const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
     const project = siteData.projects.find(p => p.slug === slug);
 
     if (!project) {
         return notFound();
     }
+
+    const allImages = [project.bannerImage, ...project.gallery.map((g: any) => g.image)];
+
+    // Handle keyboard navigation for lightbox
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (lightboxIndex === null) return;
+            if (e.key === "Escape") setLightboxIndex(null);
+            if (e.key === "ArrowLeft") {
+                setLightboxIndex((prev) => (prev !== null ? (prev === 0 ? allImages.length - 1 : prev - 1) : null));
+            }
+            if (e.key === "ArrowRight") {
+                setLightboxIndex((prev) => (prev !== null ? (prev === allImages.length - 1 ? 0 : prev + 1) : null));
+            }
+        };
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [lightboxIndex, allImages.length]);
 
     const relatedProjects = siteData.projects
         .filter(p => (project as any).relatedIds?.includes(p.id))
@@ -40,7 +49,7 @@ const ProjectDetailPage = () => {
                 <img
                     src={project.bannerImage}
                     alt={project.name}
-                    onClick={() => setLightboxImage(project.bannerImage)}
+                    onClick={() => setLightboxIndex(0)}
                     style={{ cursor: "zoom-in" }}
                 />
                 <div className="project-detail-hero-content">
@@ -74,11 +83,11 @@ const ProjectDetailPage = () => {
                             <p>{project.designCredits}</p>
 
                             <div className="project-gallery">
-                                {project.gallery.map((img: any, i) => (
+                                {project.gallery.map((img: any, i: number) => (
                                     <div
                                         key={i}
                                         className={`project-gallery-img ${img.full ? "full" : ""} ${img.span2 ? "span2" : ""}`}
-                                        onClick={() => setLightboxImage(img.image)}
+                                        onClick={() => setLightboxIndex(i + 1)}
                                         style={{ cursor: "zoom-in" }}
                                     >
                                         <img src={img.image} alt={img.alt} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
@@ -170,10 +179,10 @@ const ProjectDetailPage = () => {
             )}
 
             {/* LIGHTBOX OVERLAY */}
-            {lightboxImage && (
+            {lightboxIndex !== null && (
                 <div
                     className="lightbox-overlay"
-                    onClick={() => setLightboxImage(null)}
+                    onClick={() => setLightboxIndex(null)}
                     style={{
                         position: "fixed",
                         top: 0,
@@ -191,7 +200,7 @@ const ProjectDetailPage = () => {
                     <button
                         onClick={(e) => {
                             e.stopPropagation();
-                            setLightboxImage(null);
+                            setLightboxIndex(null);
                         }}
                         style={{
                             position: "absolute",
@@ -209,8 +218,40 @@ const ProjectDetailPage = () => {
                     >
                         &times;
                     </button>
+
+                    {allImages.length > 1 && (
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setLightboxIndex(prev => prev !== null ? (prev === 0 ? allImages.length - 1 : prev - 1) : null);
+                            }}
+                            style={{
+                                position: "absolute",
+                                left: "2rem",
+                                background: "rgba(255, 255, 255, 0.1)",
+                                border: "none",
+                                color: "white",
+                                fontSize: "1.5rem",
+                                width: "50px",
+                                height: "50px",
+                                borderRadius: "50%",
+                                cursor: "pointer",
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                zIndex: 100000,
+                                transition: "background 0.3s ease"
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255, 255, 255, 0.3)"}
+                            onMouseLeave={(e) => e.currentTarget.style.background = "rgba(255, 255, 255, 0.1)"}
+                            aria-label="Previous Image"
+                        >
+                            <i className="fa-solid fa-chevron-left"></i>
+                        </button>
+                    )}
+
                     <img
-                        src={lightboxImage}
+                        src={allImages[lightboxIndex]}
                         alt="Fullscreen View"
                         onClick={(e) => e.stopPropagation()}
                         style={{
@@ -218,9 +259,41 @@ const ProjectDetailPage = () => {
                             maxHeight: "90%",
                             objectFit: "contain",
                             cursor: "default",
-                            boxShadow: "0 0 20px rgba(0,0,0,0.5)"
+                            boxShadow: "0 0 20px rgba(0,0,0,0.5)",
+                            userSelect: "none"
                         }}
                     />
+
+                    {allImages.length > 1 && (
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setLightboxIndex(prev => prev !== null ? (prev === allImages.length - 1 ? 0 : prev + 1) : null);
+                            }}
+                            style={{
+                                position: "absolute",
+                                right: "2rem",
+                                background: "rgba(255, 255, 255, 0.1)",
+                                border: "none",
+                                color: "white",
+                                fontSize: "1.5rem",
+                                width: "50px",
+                                height: "50px",
+                                borderRadius: "50%",
+                                cursor: "pointer",
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                zIndex: 100000,
+                                transition: "background 0.3s ease"
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255, 255, 255, 0.3)"}
+                            onMouseLeave={(e) => e.currentTarget.style.background = "rgba(255, 255, 255, 0.1)"}
+                            aria-label="Next Image"
+                        >
+                            <i className="fa-solid fa-chevron-right"></i>
+                        </button>
+                    )}
                 </div>
             )}
         </main>

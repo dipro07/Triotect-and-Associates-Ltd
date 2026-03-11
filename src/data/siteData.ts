@@ -26,6 +26,7 @@ export const siteData = {
         { label: "Services", href: "/services" },
         { label: "Why Us", href: "/why-us" },
         { label: "Projects", href: "/projects" },
+        { label: "Clients", href: "/clients" },
         { label: "Contact", href: "/contact" },
     ],
     hero: {

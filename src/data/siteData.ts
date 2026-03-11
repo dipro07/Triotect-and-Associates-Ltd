@@ -1,7 +1,7 @@
 export const siteData = {
     company: {
-        name: "Triotect & Associates Ltd.",
-        tagline: "& Consultancy",
+        name: "Triotect & Associates",
+        tagline: "Ltd.",
         description: "We provide comprehensive architecture, interior design, master planning, and engineering consultancy services to create functional and modern spaces.",
         mission: "Our mission is to deliver thoughtful design, robust engineering, and efficient project management solutions tailored to our clients' needs.",
         socials: {
